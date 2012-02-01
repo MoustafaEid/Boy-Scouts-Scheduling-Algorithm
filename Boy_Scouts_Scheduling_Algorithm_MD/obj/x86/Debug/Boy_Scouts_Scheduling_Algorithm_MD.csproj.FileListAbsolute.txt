@@ -1,0 +1,8 @@
+c:\users\michael\downloads\documents\visual studio 2010\Projects\Boy_Scouts_Scheduling_Algorithm_MD\Boy_Scouts_Scheduling_Algorithm_MD\bin\Debug\Boy_Scouts_Scheduling_Algorithm_MD.exe
+c:\users\michael\downloads\documents\visual studio 2010\Projects\Boy_Scouts_Scheduling_Algorithm_MD\Boy_Scouts_Scheduling_Algorithm_MD\bin\Debug\Boy_Scouts_Scheduling_Algorithm_MD.pdb
+c:\users\michael\downloads\documents\visual studio 2010\Projects\Boy_Scouts_Scheduling_Algorithm_MD\Boy_Scouts_Scheduling_Algorithm_MD\obj\x86\Debug\ResolveAssemblyReference.cache
+c:\users\michael\downloads\documents\visual studio 2010\Projects\Boy_Scouts_Scheduling_Algorithm_MD\Boy_Scouts_Scheduling_Algorithm_MD\obj\x86\Debug\Boy_Scouts_Scheduling_Algorithm_MD.Properties.Resources.resources
+c:\users\michael\downloads\documents\visual studio 2010\Projects\Boy_Scouts_Scheduling_Algorithm_MD\Boy_Scouts_Scheduling_Algorithm_MD\obj\x86\Debug\GenerateResource.read.1.tlog
+c:\users\michael\downloads\documents\visual studio 2010\Projects\Boy_Scouts_Scheduling_Algorithm_MD\Boy_Scouts_Scheduling_Algorithm_MD\obj\x86\Debug\GenerateResource.write.1.tlog
+c:\users\michael\downloads\documents\visual studio 2010\Projects\Boy_Scouts_Scheduling_Algorithm_MD\Boy_Scouts_Scheduling_Algorithm_MD\obj\x86\Debug\Boy_Scouts_Scheduling_Algorithm_MD.exe
+c:\users\michael\downloads\documents\visual studio 2010\Projects\Boy_Scouts_Scheduling_Algorithm_MD\Boy_Scouts_Scheduling_Algorithm_MD\obj\x86\Debug\Boy_Scouts_Scheduling_Algorithm_MD.pdb
