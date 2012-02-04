@@ -24,6 +24,14 @@ namespace SchedulingAlgorithm
 			G.Add(new Group("Knights 2", 4));
 			G.Add(new Group("Knights 3", 2));
 			G.Add(new Group("Knights 66", 1));
+			G.Add(new Group("Knights 11", 3));
+			G.Add(new Group("Knights 7172", 4));
+			G.Add(new Group("Knights ZZZ", 2));
+			G.Add(new Group("Knights 6sdd6", 1));
+			G.Add(new Group("Knights AA11", 3));
+			G.Add(new Group("Knights BB7172", 1));
+			G.Add(new Group("Knights CCZZZ", 2));
+			G.Add(new Group("Knights DD6sdd6", 1));
 
 			List<Station> S = new List<Station>();
 

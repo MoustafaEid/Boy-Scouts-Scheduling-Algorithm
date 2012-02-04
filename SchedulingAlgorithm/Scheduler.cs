@@ -44,13 +44,58 @@ namespace SchedulingAlgorithm
 		}
 	}
 
+	public class Activity
+	{
+		public Group G;
+		public Station S;
+
+		public Activity(Group g, Station s)
+		{
+			G = g;
+			S = s;
+		}
+	}
+
+	public class TimeSlot
+	{
+		public List<Activity> Assignments;
+
+		public TimeSlot()
+		{
+			Assignments = new List<Activity>();
+		}
+	}
+
+	public class ScheduleStatus
+	{
+		public List<Group> FreeGroups;
+		public int ConstraintsMet;
+	}
+
+	public class Schedule
+	{
+		public List<TimeSlot> Monday;
+		public List<TimeSlot> Wednesday;
+		public List<TimeSlot> Tuesday;
+		public List<TimeSlot> Thursday;
+		public List<TimeSlot> Friday;
+	}
+
 	public static class Scheduler
 	{
+		private static int totalSlotsPerDay;
+		private static List<Group> AllGroups;
+		private static List<Station> AllStations;
+
 		public static Dictionary<string, string>[,] Schedule(List<Group> groups, List<Station> stations, int slotsPerDay)
 		{
 			// start monday end Friday
 			int dayStart = 1, dayEnd = 5;
 			int Day, Slot, i,j, k;
+
+			totalSlotsPerDay = slotsPerDay;
+			AllStations = stations;
+			AllGroups = groups;
 
 			// [GroupNumber, StationNumber] = Assignment Counter
 			int[,] GroupStationAssignments = new int[100, 100];
@@ -103,6 +148,62 @@ namespace SchedulingAlgorithm
 			}
 
 			return masterSchedule;
+		}
+
+		private ScheduleStatus getScheduleStatus(Dictionary<string, string>[,] schedule)
+		{
+			ScheduleStatus ret = new ScheduleStatus();
+			ret.FreeGroups = new List<Group>();
+
+			int Day, Slot;
+			int i;
+
+			HashSet<string> groups = new HashSet<string>();
+
+			for (Day = 1; Day <= 5; Day++)
+			{
+				for (Slot = 1; Slot <= totalSlotsPerDay; Slot++)
+				{
+					Dictionary<string, string> D = schedule[Day, Slot];
+
+					foreach (KeyValuePair<string, string> P in D)
+					{
+						groups.Add(P.Key);
+					}
+				}
+			}
+
+			for (i = 0; i < AllGroups.Count; i++)
+			{
+				if (!groups.Contains(AllGroups[i].Name))
+				{
+					ret.FreeGroups.Add(AllGroups[i]);
+				}
+			}
+
+			return ret;
+		}
+
+		private Schedule toScheduleClass(Dictionary<string, string>[,] schedule)
+		{
+			Schedule S = new Schedule();
+
+			int Day, Slot;
+
+			for (Day = 1; Day <= 5; Day++)
+			{
+				for (Slot = 1; Slot <= 5; Slot++)
+				{
+					Dictionary<string, string> D = schedule[Day, Slot];
+
+					foreach (KeyValuePair<string, string> P in D)
+					{
+						
+					}
+				}
+			}
+
+			return S;
 		}
 
 		private static bool isStationAvailableAtSlot(Station station, int Day, int Slot)
