@@ -10,11 +10,15 @@ namespace SchedulingAlgorithm
 	{
 		public string Name;
 		public int Rank;
+		public int StationPick1;
+		public int StationPick2;
 
-		public Group(string N, int R)
+		public Group(string N, int R, int S1 = -1, int S2 = -1)
 		{
 			Name = N;
 			Rank = R;
+			StationPick1 = S1;
+			StationPick2 = S2;
 		}
 	}
 
@@ -44,25 +48,40 @@ namespace SchedulingAlgorithm
 		}
 	}
 
-	public class Activity
+	public class Assignment
 	{
 		public Group G;
 		public Station S;
 
-		public Activity(Group g, Station s)
+		public Assignment(Group g, Station s)
 		{
 			G = g;
 			S = s;
 		}
 	}
 
+	public class Constraint
+	{
+		public Group G;
+		public Station S;
+		public List<int>[] Times = new List<int>[6] { new List<int>(), new List<int>(), new List<int>(), new List<int>(), new List<int>(), new List<int>() };
+
+		public Constraint(Group g, Station s, int day, int[] slots)
+		{
+			G = g;
+			S = s;
+
+			Times[day] = new List<int>(slots);
+		}
+	}
+
 	public class TimeSlot
 	{
-		public List<Activity> Assignments;
+		public List<Assignment> Assignments;
 
 		public TimeSlot()
 		{
-			Assignments = new List<Activity>();
+			Assignments = new List<Assignment>();
 		}
 	}
 
@@ -83,17 +102,21 @@ namespace SchedulingAlgorithm
 
 	public static class Scheduler
 	{
-		private const int MAXN = 100;
+		private const int MAXN = 500;
 
 		private static int totalSlotsPerDay;
 		private static List<Group> AllGroups;
 		private static List<Station> AllStations;
+		private static List<Constraint> AllConstraints;
+
 		private static int[] GroupAssignments = new int[MAXN];
 		// [GroupNumber, StationNumber] = Assignment Counter
 		private static int[,] GroupStationAssignments = new int[MAXN, MAXN];
 		private static int[,] GroupRankStationAssignments = new int[MAXN, MAXN];
 
-		public static Dictionary<int, int>[,] Schedule(List<Group> groups, List<Station> stations, int slotsPerDay)
+		private static int[] ConstraintMet = new int[MAXN];
+
+		public static Dictionary<int, int>[,] Schedule(List<Group> groups, List<Station> stations, List<Constraint> Constraints, int slotsPerDay)
 		{
 			// start monday end Friday
 			int dayStart = 1, dayEnd = 5;
@@ -102,13 +125,14 @@ namespace SchedulingAlgorithm
 			totalSlotsPerDay = slotsPerDay;
 			AllStations = stations;
 			AllGroups = groups;
+			AllConstraints = Constraints;
 
 			// Schedule
 			Dictionary<int, int>[,] masterSchedule = new Dictionary<int, int>[10, 20];
 
 			for (i = 0; i < GroupStationAssignments.GetLength(0); i++)
 				for (j = 0; j < GroupStationAssignments.GetLength(1); j++)
-					GroupStationAssignments[i, j] = GroupRankStationAssignments[i, j] = GroupAssignments[i] = 0;
+					GroupStationAssignments[i, j] = GroupRankStationAssignments[i, j] = GroupAssignments[i] = ConstraintMet[i] = 0;
 
 			for (Day = dayStart; Day <= dayEnd; Day++)
 			{
@@ -185,7 +209,23 @@ namespace SchedulingAlgorithm
 		{
 			return GroupRankStationAssignments[groupRank, stationID] <= 2000;
 		}
-		
+
+		private static int score(Dictionary<int, int>[,] masterSchedule, Assignment A, int Day, int Slot)
+		{
+			int ret = 0;
+
+			int i, j;
+
+			for (i = Day; i <= 5; i++)
+			{
+				for (j = 1; j <= totalSlotsPerDay; j++)
+				{
+					
+				}
+			}
+			return ret;
+		}
+
 		private static ScheduleStatus getScheduleStatus(Dictionary<int, int>[,] schedule)
 		{
 			ScheduleStatus ret = new ScheduleStatus();

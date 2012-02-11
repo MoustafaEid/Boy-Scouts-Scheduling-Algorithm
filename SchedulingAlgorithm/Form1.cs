@@ -27,104 +27,104 @@ namespace SchedulingAlgorithm
 			G.Add(new Group("Knights 3", 2));
 			G.Add(new Group("Knights 4", 1));
 			G.Add(new Group("Knights 5", 3));
-			G.Add(new Group("Knights 6", 4));
+			G.Add(new Group("Knights 6", 4, 4, 5));
 			G.Add(new Group("Knights 7", 2));
 			G.Add(new Group("Knights 8", 1));
-			G.Add(new Group("Knights 9", 4));
+			G.Add(new Group("Knights 9", 4, 0 , 7));
 			G.Add(new Group("Knights 10", 3));
-			G.Add(new Group("Knights 11", 4));
+			G.Add(new Group("Knights 11", 4, 1, 2));
 			G.Add(new Group("Knights 12", 3));
 			G.Add(new Group("Knights 13", 2));
-			G.Add(new Group("Knights 14", 1));
+			G.Add(new Group("Knights 14", 4, 7, 0));
 			G.Add(new Group("Knights 15", 3));
-			G.Add(new Group("Knights 16", 4));
+			G.Add(new Group("Knights 16", 4, 1, 3));
 			G.Add(new Group("Knights 17", 2));
-			G.Add(new Group("Knights 18", 4));
-			G.Add(new Group("Knights 19", 4));
+			G.Add(new Group("Knights 18", 4, 1, 6));
+			G.Add(new Group("Knights 19", 4, 5, 4));
 			G.Add(new Group("Knights 20", 1));
 
 			List<Station> S = new List<Station>();
 
-
-			List<Availability> K = new List<Availability>( new Availability[] 
+			S.Add(new Station("Pool", 2, new List<Availability>( new Availability[] 
 							{ 
 								new Availability( 1, new List<int>( new int [] { 1, 3 ,4 } ) ),
 								new Availability( 2, new List<int>( new int [] { 3, 4 } ) ),
 								new Availability( 4, new List<int>( new int [] { 1 } ) ),
 								new Availability( 5, new List<int>( new int [] { 5 } ) ),
-							} );
+							})));
 
-			S.Add(new Station("Pool", 2, K));
-
-			K = new List<Availability>(new Availability[] 
+			S.Add(new Station("Archery", 1, new List<Availability>(new Availability[] 
 							{ 
 								new Availability( 1, new List<int>( new int [] { 1, 3 ,4 } ) ),
 								new Availability( 2, new List<int>( new int [] { 1, 2, 3 ,4 } ) ),
 								new Availability( 3, new List<int>( new int [] { 3, 4,5 } ) ),
 								new Availability( 4, new List<int>( new int [] { 1,4,5 } ) ),
 								new Availability( 5, new List<int>( new int [] { 1,2,3,4,5 } ) ),
-							});
+							})));
 
-			S.Add(new Station("Archery", 1, K));
-
-			K = new List<Availability>(new Availability[] 
+			S.Add(new Station("Shooting", 1, new List<Availability>(new Availability[] 
 							{ 
 								new Availability( 1, new List<int>( new int [] { 1, 2, 3 ,4, 5 } ) ),
 								new Availability( 2, new List<int>( new int [] { 1,2,3,4,5 } ) ),
 								new Availability( 3, new List<int>( new int [] { 1,2,3,4,5 } ) ),
-							});
+							})));
 
-			S.Add(new Station("Shooting", 1, K));
-
-			K = new List<Availability>(new Availability[] 
+			S.Add(new Station("Skits", 2,new List<Availability>(new Availability[] 
 							{ 
 								new Availability( 2, new List<int>( new int [] { 5 } ) ),
 								new Availability( 4, new List<int>( new int [] { 1 } ) ),
-							});
+							})));
 
-			S.Add(new Station("Skits", 2, K));
-
-			K = new List<Availability>(new Availability[] 
+			S.Add(new Station("Karate", 2, new List<Availability>(new Availability[] 
 							{ 
 								new Availability( 1, new List<int>( new int [] { 1, 3 ,4 } ) ),
 								new Availability( 2, new List<int>( new int [] { 3, 4 } ) ),
 								new Availability( 4, new List<int>( new int [] { 1 } ) ),
 								new Availability( 5, new List<int>( new int [] { 5 } ) ),
-							});
+							})));
 
-			S.Add(new Station("Karate", 2, K));
-
-			K = new List<Availability>(new Availability[] 
+			S.Add(new Station("Tennis", 2, new List<Availability>(new Availability[] 
 							{ 
 								new Availability( 1, new List<int>( new int [] { 1, 2, 3, 4, 5 } ) ),
 								new Availability( 2, new List<int>( new int [] { 1, 2, 3, 4, 5 } ) ),
 								new Availability( 3, new List<int>( new int [] { 1, 2, 3, 4, 5 } ) ),
 								new Availability( 4, new List<int>( new int [] { 1, 2, 3, 4, 5 } ) ),
 								new Availability( 5, new List<int>( new int [] { 1, 2, 3, 4, 5 } ) ),
-							});
+							})));
 
-			S.Add(new Station("Tennis", 2, K));
-
-			K = new List<Availability>(new Availability[] 
+			S.Add(new Station("Hunting", 2, new List<Availability>(new Availability[] 
 							{ 
 								new Availability( 1, new List<int>( new int [] { 1, 3 ,4 } ) ),
 								new Availability( 2, new List<int>( new int [] { 3, 4, 5 } ) ),
 								new Availability( 3, new List<int>( new int [] { 1, 4, 5 } ) ),
-							});
+							})));
 
-			S.Add(new Station("Hunting", 2, K));
-
-			K = new List<Availability>(new Availability[] 
+			S.Add(new Station("Baseball", 2, new List<Availability>(new Availability[] 
 							{ 
 								new Availability( 1, new List<int>( new int [] { 1, 3 ,4 } ) ),
 								new Availability( 2, new List<int>( new int [] { 3, 4 } ) ),
 								new Availability( 4, new List<int>( new int [] { 1 } ) ),
 								new Availability( 5, new List<int>( new int [] { 5 } ) ),
-							});
+							})));
 
-			S.Add(new Station("Baseball", 2, K));
+			List<Constraint> C = new List<Constraint>();
 
-			Dictionary<int, int>[,] A = Scheduler.Schedule(G, S, 5);
+			C.Add(new Constraint(G[0], S[3],  1, new int[] { 1, 3, 5 }));
+			C.Add(new Constraint(G[0], S[5], 5, new int[] { 1 }));
+			C.Add(new Constraint(G[0], S[7], 3, new int[] { 2, 4 }));
+			C.Add(new Constraint(G[1], S[10], 1, new int[] { 1 }));
+			C.Add(new Constraint(G[1], S[2], 1, new int[] { 2, 4 }));
+			C.Add(new Constraint(G[5], S[4], 1, new int[] { 1, 2, 3 }));
+			C.Add(new Constraint(G[7], S[2], 1, new int[] { 1, 3, 4 }));
+			C.Add(new Constraint(G[8], S[2], 1, new int[] { 2 }));
+			C.Add(new Constraint(G[10], S[1], 1, new int[] { 4 }));
+			C.Add(new Constraint(G[11], S[7], 1, new int[] { 2, 3 }));
+			C.Add(new Constraint(G[14], S[6], 1, new int[] { 1, 2 }));
+			C.Add(new Constraint(G[16], S[5], 1, new int[] { 3, 4 }));
+			C.Add(new Constraint(G[18], S[5], 1, new int[] { 5 }));
+			C.Add(new Constraint(G[19], S[4], 1, new int[] { 3, 4, 5 }));
+
+			Dictionary<int, int>[,] A = Scheduler.Schedule(G, S, C, 5);
 
 			printSchedule(G,S,A);
 		}
