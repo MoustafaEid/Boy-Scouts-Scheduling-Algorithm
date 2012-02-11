@@ -83,11 +83,17 @@ namespace SchedulingAlgorithm
 
 	public static class Scheduler
 	{
+		private const int MAXN = 100;
+
 		private static int totalSlotsPerDay;
 		private static List<Group> AllGroups;
 		private static List<Station> AllStations;
+		private static int[] GroupAssignments = new int[MAXN];
+		// [GroupNumber, StationNumber] = Assignment Counter
+		private static int[,] GroupStationAssignments = new int[MAXN, MAXN];
+		private static int[,] GroupRankStationAssignments = new int[MAXN, MAXN];
 
-		public static Dictionary<string, string>[,] Schedule(List<Group> groups, List<Station> stations, int slotsPerDay)
+		public static Dictionary<int, int>[,] Schedule(List<Group> groups, List<Station> stations, int slotsPerDay)
 		{
 			// start monday end Friday
 			int dayStart = 1, dayEnd = 5;
@@ -97,21 +103,18 @@ namespace SchedulingAlgorithm
 			AllStations = stations;
 			AllGroups = groups;
 
-			// [GroupNumber, StationNumber] = Assignment Counter
-			int[,] GroupStationAssignments = new int[100, 100];
-
 			// Schedule
-			Dictionary<string, string>[,] masterSchedule = new Dictionary<string, string>[10, 20];
+			Dictionary<int, int>[,] masterSchedule = new Dictionary<int, int>[10, 20];
 
 			for (i = 0; i < GroupStationAssignments.GetLength(0); i++)
 				for (j = 0; j < GroupStationAssignments.GetLength(1); j++)
-					GroupStationAssignments[i, j] = 0;
+					GroupStationAssignments[i, j] = GroupRankStationAssignments[i, j] = GroupAssignments[i] = 0;
 
 			for (Day = dayStart; Day <= dayEnd; Day++)
 			{
 				for (Slot = 1; Slot <= slotsPerDay; Slot++)
 				{
-					masterSchedule[Day, Slot] = new Dictionary<string, string>();
+					masterSchedule[Day, Slot] = new Dictionary<int, int>();
 
 					// Group busy
 					bool[] isGroupBusy = new bool[100];
@@ -120,28 +123,34 @@ namespace SchedulingAlgorithm
 					{
 						Station curStation = stations[i];
 
-						if (!isStationAvailableAtSlot(stations[i], Day, Slot))
+						if (!isStationAvailableAtSlot(curStation, Day, Slot))
 							continue;
 
-						int counter = 1;
+						int stationCapacityCounter = 1;
 
 						for (j = 0; j < groups.Count; j++)
 						{
-							if (counter > curStation.Capacity)
+							if (stationCapacityCounter > curStation.Capacity)
 								break;
 
-							Group curGroup = groups[j];
+							int groupNum = getNextLeastAssignedGroup();
+							Group curGroup = groups[groupNum];
 
-							if (GroupStationAssignments[j, i] >= 2 || isGroupBusy[j])
+							if (isGroupBusy[groupNum] || !canHappenGroupStationAssignment(groupNum, i) || !canHappenGroupRankStationAssignment(curGroup.Rank, i))
 								continue;
 
 							// Group is busy in this slot
-							isGroupBusy[j] = true;
-							GroupStationAssignments[j, i]++;
+							isGroupBusy[groupNum] = true;
+							// Increment group activites
+							GroupAssignments[groupNum]++;
+							// Assign the Group to the station
+							GroupStationAssignments[groupNum, i]++;
+							// Assign the Group's rank to the station
+							GroupRankStationAssignments[ curGroup.Rank, i]++;
 
-							counter++;
+							stationCapacityCounter++;
 
-							masterSchedule[Day, Slot].Add(curGroup.Name, curStation.Name);
+							masterSchedule[Day, Slot].Add(groupNum, i);
 						}
 					}
 				}
@@ -150,7 +159,34 @@ namespace SchedulingAlgorithm
 			return masterSchedule;
 		}
 
-		private ScheduleStatus getScheduleStatus(Dictionary<string, string>[,] schedule)
+		private static int getNextLeastAssignedGroup()
+		{
+			int i;
+			int min = 1 << 30;
+			int index = -1;
+
+			for (i = 0; i < AllGroups.Count; i++)
+			{
+				if (GroupAssignments[i] < min)
+				{
+					min = GroupAssignments[i];
+					index = i;
+				}
+			}
+
+			return index;
+		}
+		private static bool canHappenGroupStationAssignment(int groupID, int stationID)
+		{
+			return GroupStationAssignments[ groupID, stationID ] <= 4;
+		}
+
+		private static bool canHappenGroupRankStationAssignment(int groupRank, int stationID)
+		{
+			return GroupRankStationAssignments[groupRank, stationID] <= 2000;
+		}
+		
+		private static ScheduleStatus getScheduleStatus(Dictionary<int, int>[,] schedule)
 		{
 			ScheduleStatus ret = new ScheduleStatus();
 			ret.FreeGroups = new List<Group>();
@@ -158,15 +194,15 @@ namespace SchedulingAlgorithm
 			int Day, Slot;
 			int i;
 
-			HashSet<string> groups = new HashSet<string>();
+			HashSet<int> groups = new HashSet<int>();
 
 			for (Day = 1; Day <= 5; Day++)
 			{
 				for (Slot = 1; Slot <= totalSlotsPerDay; Slot++)
 				{
-					Dictionary<string, string> D = schedule[Day, Slot];
+					Dictionary<int, int> D = schedule[Day, Slot];
 
-					foreach (KeyValuePair<string, string> P in D)
+					foreach (KeyValuePair<int, int> P in D)
 					{
 						groups.Add(P.Key);
 					}
@@ -175,35 +211,13 @@ namespace SchedulingAlgorithm
 
 			for (i = 0; i < AllGroups.Count; i++)
 			{
-				if (!groups.Contains(AllGroups[i].Name))
+				if (!groups.Contains(i))
 				{
 					ret.FreeGroups.Add(AllGroups[i]);
 				}
 			}
 
 			return ret;
-		}
-
-		private Schedule toScheduleClass(Dictionary<string, string>[,] schedule)
-		{
-			Schedule S = new Schedule();
-
-			int Day, Slot;
-
-			for (Day = 1; Day <= 5; Day++)
-			{
-				for (Slot = 1; Slot <= 5; Slot++)
-				{
-					Dictionary<string, string> D = schedule[Day, Slot];
-
-					foreach (KeyValuePair<string, string> P in D)
-					{
-						
-					}
-				}
-			}
-
-			return S;
 		}
 
 		private static bool isStationAvailableAtSlot(Station station, int Day, int Slot)
