@@ -39,12 +39,17 @@ namespace SchedulingAlgorithm
 		public string Name;
 		public int Capacity;
 		public List<Availability> Avail;
+		public int totalAvailabltSlots;
 
 		public Station(string N, int C, List<Availability> A)
 		{
 			Name = N;
 			Capacity = C;
 			Avail = A;
+			totalAvailabltSlots = 0;
+
+			foreach (Availability x in A)
+				totalAvailabltSlots += x.Slots.Count;
 		}
 	}
 
@@ -64,14 +69,13 @@ namespace SchedulingAlgorithm
 	{
 		public Group G;
 		public Station S;
-		public List<int>[] Times = new List<int>[6] { new List<int>(), new List<int>(), new List<int>(), new List<int>(), new List<int>(), new List<int>() };
+		public int nTimes;
 
-		public Constraint(Group g, Station s, int day, int[] slots)
+		public Constraint(Group g, Station s, int n)
 		{
 			G = g;
 			S = s;
-
-			Times[day] = new List<int>(slots);
+			nTimes = n;
 		}
 	}
 
@@ -103,6 +107,9 @@ namespace SchedulingAlgorithm
 	public static class Scheduler
 	{
 		private const int MAXN = 500;
+		private const int CONSTRAINT_PENALTY = 10;
+		private const int NOT_GETTING_FIRST_PICK_PENALTY = 20;
+		private const int NOT_GETTING_ANY_PICK_PENALTY = 100;
 
 		private static int totalSlotsPerDay;
 		private static List<Group> AllGroups;
@@ -114,8 +121,12 @@ namespace SchedulingAlgorithm
 		private static int[,] GroupStationAssignments = new int[MAXN, MAXN];
 		private static int[,] GroupRankStationAssignments = new int[MAXN, MAXN];
 
-		private static int[] ConstraintMet = new int[MAXN];
+		private static bool[] ConstraintMet = new bool[MAXN];
 
+		// stations assignment counts
+		private static int[, ,] StationSlotAssignmentsCounts = new int[MAXN, MAXN, MAXN];
+		private static int[] StationAssignmentsCounts = new int[MAXN];
+		
 		public static Dictionary<int, int>[,] Schedule(List<Group> groups, List<Station> stations, List<Constraint> Constraints, int slotsPerDay)
 		{
 			// start monday end Friday
@@ -132,7 +143,14 @@ namespace SchedulingAlgorithm
 
 			for (i = 0; i < GroupStationAssignments.GetLength(0); i++)
 				for (j = 0; j < GroupStationAssignments.GetLength(1); j++)
-					GroupStationAssignments[i, j] = GroupRankStationAssignments[i, j] = GroupAssignments[i] = ConstraintMet[i] = 0;
+				{
+					GroupStationAssignments[i, j] = GroupRankStationAssignments[i, j] = GroupAssignments[i] = StationAssignmentsCounts[i] = 0;
+
+					for (k = 0; k < MAXN; k++)
+						StationSlotAssignmentsCounts[i, j, k] = 0;
+
+					ConstraintMet[i] = false;
+				}
 
 			for (Day = dayStart; Day <= dayEnd; Day++)
 			{
@@ -200,6 +218,7 @@ namespace SchedulingAlgorithm
 
 			return index;
 		}
+
 		private static bool canHappenGroupStationAssignment(int groupID, int stationID)
 		{
 			return GroupStationAssignments[ groupID, stationID ] <= 4;
@@ -210,21 +229,114 @@ namespace SchedulingAlgorithm
 			return GroupRankStationAssignments[groupRank, stationID] <= 2000;
 		}
 
+		private static int getStationIndex(Station s)
+		{
+			int i;
+			for (i = 0; i < AllStations.Count; i++)
+			{
+				if (AllStations[i].Name == s.Name)
+					return i;
+			}
+
+			return -1;
+		}
+
 		private static int score(Dictionary<int, int>[,] masterSchedule, Assignment A, int Day, int Slot)
 		{
 			int ret = 0;
 
 			int i, j;
 
-			for (i = Day; i <= 5; i++)
+			// check if other constraints will be violated if this assignment happens.
+
+			// station cap - 1 for the current assigmment
+			int stationIndex = getStationIndex(A.S);
+			int stationTotalAvailableSlotsLeft = A.S.totalAvailabltSlots - StationAssignmentsCounts[stationIndex] - 1;
+
+			int otherGroupsNeedThisStation = 0;
+
+			if (stationTotalAvailableSlotsLeft < 0)
+				throw new Exception("Error generating schedule. SC-1");
+
+			// look for anyone else who wants this station.
+			for (i = 0; i < AllConstraints.Count; i++)
 			{
-				for (j = 1; j <= totalSlotsPerDay; j++)
+				if (ConstraintMet[i] || AllConstraints[i].S != A.S || AllConstraints[i].G == A.G)
+					continue;
+
+				otherGroupsNeedThisStation++;
+			}
+
+			if (otherGroupsNeedThisStation > stationTotalAvailableSlotsLeft)
+			{
+				ret += CONSTRAINT_PENALTY * (otherGroupsNeedThisStation - stationTotalAvailableSlotsLeft);
+			}
+
+			int nSecondPicks = 0;
+			int nNoPicks = 0;
+
+			// Check how many groups get their second pick instead of first, and how many groups aren't getting any picks
+			
+			// Copy the total assignment count for stations.
+			int[] StationAssignmentsCountsTemp = new int[MAXN];
+
+			for (i = 0; i < AllStations.Count; i++)
+				StationAssignmentsCountsTemp[i] = StationAssignmentsCounts[i];
+
+			for (i = 0; i < AllGroups.Count; i++)
+			{
+				if( AllGroups[i].StationPick1 == -1 )
+					continue;
+
+				int stationPick1AvailableSlots = AllStations[AllGroups[i].StationPick1].totalAvailabltSlots - StationAssignmentsCountsTemp[AllGroups[i].StationPick1];
+				int stationPick2AvailableSlots = AllStations[AllGroups[i].StationPick2].totalAvailabltSlots - StationAssignmentsCountsTemp[AllGroups[i].StationPick2];
+
+				if (stationPick1AvailableSlots > 0)
 				{
-					
+					StationAssignmentsCountsTemp[AllGroups[i].StationPick1]++;
+				}
+				else if (stationPick2AvailableSlots > 0)
+				{
+					StationAssignmentsCountsTemp[AllGroups[i].StationPick2]++;
+					nSecondPicks++;
+				}
+				else
+				{
+					nNoPicks++;
 				}
 			}
+
+			ret += NOT_GETTING_FIRST_PICK_PENALTY * nSecondPicks;
+			ret += NOT_GETTING_ANY_PICK_PENALTY * nNoPicks;
+
 			return ret;
 		}
+
+		private static int getStationTotalCapacityDuringWeek(Station s, int Day, int Slot)
+		{
+			int ret = 0;
+
+			int i, j;
+
+			for (i = 0; i < s.Avail.Count; i++)
+			{
+				if (s.Avail[i].DayNumber == Day)
+				{
+					for (j = 0; j < s.Avail[i].Slots.Count; j++)
+						if (s.Avail[i].Slots[j] > Slot)
+							ret++;
+				}
+				else if (s.Avail[i].DayNumber > Day)
+				{
+					ret += s.Avail[i].Slots.Count;
+				}
+			}
+
+			ret *= s.Capacity;
+
+			return ret;
+		}
+
 
 		private static ScheduleStatus getScheduleStatus(Dictionary<int, int>[,] schedule)
 		{

@@ -109,20 +109,20 @@ namespace SchedulingAlgorithm
 
 			List<Constraint> C = new List<Constraint>();
 
-			C.Add(new Constraint(G[0], S[3],  1, new int[] { 1, 3, 5 }));
-			C.Add(new Constraint(G[0], S[5], 5, new int[] { 1 }));
-			C.Add(new Constraint(G[0], S[7], 3, new int[] { 2, 4 }));
-			C.Add(new Constraint(G[1], S[10], 1, new int[] { 1 }));
-			C.Add(new Constraint(G[1], S[2], 1, new int[] { 2, 4 }));
-			C.Add(new Constraint(G[5], S[4], 1, new int[] { 1, 2, 3 }));
-			C.Add(new Constraint(G[7], S[2], 1, new int[] { 1, 3, 4 }));
-			C.Add(new Constraint(G[8], S[2], 1, new int[] { 2 }));
-			C.Add(new Constraint(G[10], S[1], 1, new int[] { 4 }));
-			C.Add(new Constraint(G[11], S[7], 1, new int[] { 2, 3 }));
-			C.Add(new Constraint(G[14], S[6], 1, new int[] { 1, 2 }));
-			C.Add(new Constraint(G[16], S[5], 1, new int[] { 3, 4 }));
-			C.Add(new Constraint(G[18], S[5], 1, new int[] { 5 }));
-			C.Add(new Constraint(G[19], S[4], 1, new int[] { 3, 4, 5 }));
+			C.Add(new Constraint(G[0], S[3],  1));
+			C.Add(new Constraint(G[0], S[5], 2));
+			C.Add(new Constraint(G[0], S[7], 1));
+			C.Add(new Constraint(G[1], S[10], 1));
+			C.Add(new Constraint(G[1], S[2], 1));
+			C.Add(new Constraint(G[5], S[4], 1));
+			C.Add(new Constraint(G[7], S[2], 1));
+			C.Add(new Constraint(G[8], S[2], 2));
+			C.Add(new Constraint(G[10], S[1], 1));
+			C.Add(new Constraint(G[11], S[7], 1));
+			C.Add(new Constraint(G[14], S[6], 1));
+			C.Add(new Constraint(G[16], S[5], 2));
+			C.Add(new Constraint(G[18], S[5], 1));
+			C.Add(new Constraint(G[19], S[4], 1));
 
 			Dictionary<int, int>[,] A = Scheduler.Schedule(G, S, C, 5);
 
