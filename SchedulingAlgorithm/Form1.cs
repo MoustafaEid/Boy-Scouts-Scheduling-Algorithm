@@ -124,7 +124,7 @@ namespace SchedulingAlgorithm
 			C.Add(new Constraint(G[18], S[5], 1));
 			C.Add(new Constraint(G[19], S[4], 1));
 
-			Dictionary<int, int>[,] A = Scheduler.Schedule(G, S, C, 5);
+			Dictionary<int, int>[,] A = GreedyScheduler.Schedule(G, S, C, 5);
 
 			printSchedule(G,S,A);
 		}
