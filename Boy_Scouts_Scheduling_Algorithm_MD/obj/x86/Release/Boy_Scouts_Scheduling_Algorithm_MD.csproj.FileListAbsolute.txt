@@ -1,0 +1,9 @@
+C:\Users\Michael\downloads\documents\visual studio 2010\Projects\Boy_Scouts_Scheduling_Algorithm_MD\Boy_Scouts_Scheduling_Algorithm_MD\bin\Release\Boy_Scouts_Scheduling_Algorithm_MD.exe
+C:\Users\Michael\downloads\documents\visual studio 2010\Projects\Boy_Scouts_Scheduling_Algorithm_MD\Boy_Scouts_Scheduling_Algorithm_MD\bin\Release\Boy_Scouts_Scheduling_Algorithm_MD.pdb
+C:\Users\Michael\downloads\documents\visual studio 2010\Projects\Boy_Scouts_Scheduling_Algorithm_MD\Boy_Scouts_Scheduling_Algorithm_MD\obj\x86\Release\ResolveAssemblyReference.cache
+C:\Users\Michael\downloads\documents\visual studio 2010\Projects\Boy_Scouts_Scheduling_Algorithm_MD\Boy_Scouts_Scheduling_Algorithm_MD\obj\x86\Release\Boy_Scouts_Scheduling_Algorithm_MD.Form1.resources
+C:\Users\Michael\downloads\documents\visual studio 2010\Projects\Boy_Scouts_Scheduling_Algorithm_MD\Boy_Scouts_Scheduling_Algorithm_MD\obj\x86\Release\Boy_Scouts_Scheduling_Algorithm_MD.Properties.Resources.resources
+C:\Users\Michael\downloads\documents\visual studio 2010\Projects\Boy_Scouts_Scheduling_Algorithm_MD\Boy_Scouts_Scheduling_Algorithm_MD\obj\x86\Release\GenerateResource.read.1.tlog
+C:\Users\Michael\downloads\documents\visual studio 2010\Projects\Boy_Scouts_Scheduling_Algorithm_MD\Boy_Scouts_Scheduling_Algorithm_MD\obj\x86\Release\GenerateResource.write.1.tlog
+C:\Users\Michael\downloads\documents\visual studio 2010\Projects\Boy_Scouts_Scheduling_Algorithm_MD\Boy_Scouts_Scheduling_Algorithm_MD\obj\x86\Release\Boy_Scouts_Scheduling_Algorithm_MD.exe
+C:\Users\Michael\downloads\documents\visual studio 2010\Projects\Boy_Scouts_Scheduling_Algorithm_MD\Boy_Scouts_Scheduling_Algorithm_MD\obj\x86\Release\Boy_Scouts_Scheduling_Algorithm_MD.pdb
