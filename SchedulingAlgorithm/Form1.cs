@@ -112,7 +112,7 @@ namespace SchedulingAlgorithm
 			C.Add(new Constraint(G[0], S[3],  1));
 			C.Add(new Constraint(G[0], S[5], 2));
 			C.Add(new Constraint(G[0], S[7], 1));
-			C.Add(new Constraint(G[1], S[10], 1));
+			C.Add(new Constraint(G[1], S[5], 1));
 			C.Add(new Constraint(G[1], S[2], 1));
 			C.Add(new Constraint(G[5], S[4], 1));
 			C.Add(new Constraint(G[7], S[2], 1));

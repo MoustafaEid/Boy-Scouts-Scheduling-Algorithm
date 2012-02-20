@@ -12,13 +12,15 @@ namespace SchedulingAlgorithm
 		public int Rank;
 		public int StationPick1;
 		public int StationPick2;
+		public int StationPick3;
 
-		public Group(string N, int R, int S1 = -1, int S2 = -1)
+		public Group(string N, int R, int S1 = -1, int S2 = -1, int S3 = -1)
 		{
 			Name = N;
 			Rank = R;
 			StationPick1 = S1;
 			StationPick2 = S2;
+			StationPick3 = S3;
 		}
 	}
 
@@ -50,6 +52,8 @@ namespace SchedulingAlgorithm
 
 			foreach (Availability x in A)
 				totalAvailabltSlots += x.Slots.Count;
+
+			totalAvailabltSlots *= Capacity;
 		}
 	}
 
@@ -106,10 +110,12 @@ namespace SchedulingAlgorithm
 
 	public static class Scheduler
 	{
-		private const int MAXN = 500;
-		private const int CONSTRAINT_PENALTY = 10;
-		private const int NOT_GETTING_FIRST_PICK_PENALTY = 20;
-		private const int NOT_GETTING_ANY_PICK_PENALTY = 100;
+		// is it okay to get any of the picks, or the first pick is more preferrable?
+		private const int MAXN = 150;
+		private const int CONSTRAINT_PENALTY = -10;
+		private const int GETTING_SECOND_PICK_PENALTY = -20;
+		private const int GETTING_THIRD_PICK_PENALTY = -25;
+		private const int NOT_GETTING_ANY_PICKS_PENALTY = -30;
 
 		private static int totalSlotsPerDay;
 		private static List<Group> AllGroups;
@@ -124,6 +130,7 @@ namespace SchedulingAlgorithm
 		private static bool[] ConstraintMet = new bool[MAXN];
 
 		// stations assignment counts
+		// station day slot
 		private static int[, ,] StationSlotAssignmentsCounts = new int[MAXN, MAXN, MAXN];
 		private static int[] StationAssignmentsCounts = new int[MAXN];
 		
@@ -141,8 +148,8 @@ namespace SchedulingAlgorithm
 			// Schedule
 			Dictionary<int, int>[,] masterSchedule = new Dictionary<int, int>[10, 20];
 
-			for (i = 0; i < GroupStationAssignments.GetLength(0); i++)
-				for (j = 0; j < GroupStationAssignments.GetLength(1); j++)
+			for (i = 0; i < MAXN; i++)
+				for (j = 0; j < MAXN; j++)
 				{
 					GroupStationAssignments[i, j] = GroupRankStationAssignments[i, j] = GroupAssignments[i] = StationAssignmentsCounts[i] = 0;
 
@@ -161,39 +168,57 @@ namespace SchedulingAlgorithm
 					// Group busy
 					bool[] isGroupBusy = new bool[100];
 
-					for (i = 0; i < stations.Count; i++)
+					// keep looking for assignments for this slot
+					while (true)
 					{
-						Station curStation = stations[i];
+						int groupSelected = -1;
+						int stationSelected = -1;
+						int maxScore = -1 << 30;
 
-						if (!isStationAvailableAtSlot(curStation, Day, Slot))
-							continue;
-
-						int stationCapacityCounter = 1;
-
-						for (j = 0; j < groups.Count; j++)
+						for (i = 0; i < stations.Count; i++)
 						{
-							if (stationCapacityCounter > curStation.Capacity)
-								break;
+							Station curStation = stations[i];
 
-							int groupNum = getNextLeastAssignedGroup();
-							Group curGroup = groups[groupNum];
-
-							if (isGroupBusy[groupNum] || !canHappenGroupStationAssignment(groupNum, i) || !canHappenGroupRankStationAssignment(curGroup.Rank, i))
+							if (!isStationAvailableAtSlot(curStation, Day, Slot) || StationSlotAssignmentsCounts[i, Day,Slot] >= curStation.Capacity)
 								continue;
 
-							// Group is busy in this slot
-							isGroupBusy[groupNum] = true;
-							// Increment group activites
-							GroupAssignments[groupNum]++;
-							// Assign the Group to the station
-							GroupStationAssignments[groupNum, i]++;
-							// Assign the Group's rank to the station
-							GroupRankStationAssignments[ curGroup.Rank, i]++;
+							for (j = 0; j < groups.Count; j++)
+							{
+								int groupNum = getNextLeastAssignedGroup();
+								//int groupNum = j;
+								Group curGroup = groups[groupNum];
 
-							stationCapacityCounter++;
+								if (isGroupBusy[groupNum] || !canHappenGroupStationAssignment(groupNum, i) || !canHappenGroupRankStationAssignment(curGroup.Rank, i))
+									continue;
 
-							masterSchedule[Day, Slot].Add(groupNum, i);
+								int s = score(masterSchedule, curStation, curGroup, Day, Slot);
+
+								if (s > maxScore)
+								{
+									maxScore = s;
+									groupSelected = groupNum;
+									stationSelected = i;
+								}
+
+							}
 						}
+
+						if (groupSelected == -1)
+							break;
+
+						// Group is busy in this slot
+						isGroupBusy[groupSelected] = true;
+						// Increment group activites
+						GroupAssignments[groupSelected]++;
+						// Assign the Group to the station
+						GroupStationAssignments[groupSelected, stationSelected]++;
+						// Assign the Group's rank to the station
+						GroupRankStationAssignments[ AllGroups[groupSelected].Rank, stationSelected]++;
+
+						StationSlotAssignmentsCounts[stationSelected, Day, Slot]++;
+						StationAssignmentsCounts[stationSelected]++;
+
+						masterSchedule[Day, Slot].Add(groupSelected, stationSelected);
 					}
 				}
 			}
@@ -221,7 +246,7 @@ namespace SchedulingAlgorithm
 
 		private static bool canHappenGroupStationAssignment(int groupID, int stationID)
 		{
-			return GroupStationAssignments[ groupID, stationID ] <= 4;
+			return GroupStationAssignments[ groupID, stationID ] <= 400;
 		}
 
 		private static bool canHappenGroupRankStationAssignment(int groupRank, int stationID)
@@ -232,6 +257,7 @@ namespace SchedulingAlgorithm
 		private static int getStationIndex(Station s)
 		{
 			int i;
+
 			for (i = 0; i < AllStations.Count; i++)
 			{
 				if (AllStations[i].Name == s.Name)
@@ -241,17 +267,17 @@ namespace SchedulingAlgorithm
 			return -1;
 		}
 
-		private static int score(Dictionary<int, int>[,] masterSchedule, Assignment A, int Day, int Slot)
+		private static int score(Dictionary<int, int>[,] masterSchedule, Station S, Group G, int Day, int Slot)
 		{
 			int ret = 0;
-
+			
 			int i, j;
 
 			// check if other constraints will be violated if this assignment happens.
 
 			// station cap - 1 for the current assigmment
-			int stationIndex = getStationIndex(A.S);
-			int stationTotalAvailableSlotsLeft = A.S.totalAvailabltSlots - StationAssignmentsCounts[stationIndex] - 1;
+			int stationIndex = getStationIndex(S);
+			int stationTotalAvailableSlotsLeft = S.totalAvailabltSlots - StationAssignmentsCounts[stationIndex] - 1;
 
 			int otherGroupsNeedThisStation = 0;
 
@@ -261,7 +287,7 @@ namespace SchedulingAlgorithm
 			// look for anyone else who wants this station.
 			for (i = 0; i < AllConstraints.Count; i++)
 			{
-				if (ConstraintMet[i] || AllConstraints[i].S != A.S || AllConstraints[i].G == A.G)
+				if (ConstraintMet[i] || AllConstraints[i].S != S || AllConstraints[i].G == G)
 					continue;
 
 				otherGroupsNeedThisStation++;
@@ -272,42 +298,50 @@ namespace SchedulingAlgorithm
 				ret += CONSTRAINT_PENALTY * (otherGroupsNeedThisStation - stationTotalAvailableSlotsLeft);
 			}
 
+			int nFirstPicks = 0;
 			int nSecondPicks = 0;
+			int nThirdPicks = 0;
 			int nNoPicks = 0;
 
 			// Check how many groups get their second pick instead of first, and how many groups aren't getting any picks
 			
 			// Copy the total assignment count for stations.
-			int[] StationAssignmentsCountsTemp = new int[MAXN];
+			int[] StationAssignmentsCountsTemp = (int[])StationAssignmentsCounts.Clone();
+			StationAssignmentsCountsTemp[stationIndex]++;
 
-			for (i = 0; i < AllStations.Count; i++)
-				StationAssignmentsCountsTemp[i] = StationAssignmentsCounts[i];
+			int stationPick1AvailableSlots, stationPick2AvailableSlots, stationPick3AvailableSlots;
 
 			for (i = 0; i < AllGroups.Count; i++)
 			{
 				if( AllGroups[i].StationPick1 == -1 )
 					continue;
 
-				int stationPick1AvailableSlots = AllStations[AllGroups[i].StationPick1].totalAvailabltSlots - StationAssignmentsCountsTemp[AllGroups[i].StationPick1];
-				int stationPick2AvailableSlots = AllStations[AllGroups[i].StationPick2].totalAvailabltSlots - StationAssignmentsCountsTemp[AllGroups[i].StationPick2];
+				stationPick1AvailableSlots = AllGroups[i].StationPick1 == -1 ? 0 : AllStations[AllGroups[i].StationPick1].totalAvailabltSlots - StationAssignmentsCountsTemp[AllGroups[i].StationPick1];
+				stationPick2AvailableSlots = AllGroups[i].StationPick2 == -1 ? 0 : AllStations[AllGroups[i].StationPick2].totalAvailabltSlots - StationAssignmentsCountsTemp[AllGroups[i].StationPick2];
+				stationPick3AvailableSlots = AllGroups[i].StationPick3 == -1 ? 0 : AllStations[AllGroups[i].StationPick3].totalAvailabltSlots - StationAssignmentsCountsTemp[AllGroups[i].StationPick3];
 
-				if (stationPick1AvailableSlots > 0)
+				if (AllGroups[i].StationPick1 != -1 && stationPick1AvailableSlots > 0)
 				{
 					StationAssignmentsCountsTemp[AllGroups[i].StationPick1]++;
+					nFirstPicks++;
 				}
-				else if (stationPick2AvailableSlots > 0)
+				else if (AllGroups[i].StationPick1 != -1 && stationPick2AvailableSlots > 0)
 				{
 					StationAssignmentsCountsTemp[AllGroups[i].StationPick2]++;
 					nSecondPicks++;
 				}
-				else
+				else if (AllGroups[i].StationPick1 != -1 && stationPick3AvailableSlots > 0)
 				{
-					nNoPicks++;
+					StationAssignmentsCountsTemp[AllGroups[i].StationPick3]++;
+					nThirdPicks++;
 				}
+				else
+					nNoPicks++;
 			}
 
-			ret += NOT_GETTING_FIRST_PICK_PENALTY * nSecondPicks;
-			ret += NOT_GETTING_ANY_PICK_PENALTY * nNoPicks;
+			ret += GETTING_SECOND_PICK_PENALTY * nSecondPicks;
+			ret += GETTING_THIRD_PICK_PENALTY * nThirdPicks;
+			ret += NOT_GETTING_ANY_PICKS_PENALTY * nNoPicks;
 
 			return ret;
 		}
